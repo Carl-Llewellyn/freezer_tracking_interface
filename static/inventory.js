@@ -22,7 +22,6 @@ function render() {
     renderBoxSampleList(navigationStack[2].data);
   }
 }
-
 function renderBreadcrumbs() {
   if (navigationStack.length === 0) return;
   const crumb = document.createElement('div');
@@ -32,20 +31,27 @@ function renderBreadcrumbs() {
       if (idx === navigationStack.length - 1) {
         return `<b>${nav.name}</b>`;
       } else {
-        return `<a href="#" data-idx="${idx}">${nav.name}</a>`;
+        return `<a href="#" data-idx="${idx}" style="text-decoration: underline; cursor: pointer">${nav.name}</a>`;
       }
     })
     .join('<span class="sep">/</span>');
-  crumb.onclick = function(e) {
-    const target = e.target.closest('a[data-idx]');
+  app.appendChild(crumb);
+}
+
+// Attach the event listener ONCE, globally, after defining app:
+if (!window.__breadcrumb_listener_attached) {
+  document.getElementById('app').addEventListener('click', function(e) {
+    // Look for breadcrumb links
+    const target = e.target.closest('.breadcrumb a[data-idx]');
     if (target) {
+     // alert("Breadcrumb link clicked: idx=" + target.dataset.idx); // DEBUG
       e.preventDefault();
       const idx = parseInt(target.dataset.idx, 10);
       navigationStack = navigationStack.slice(0, idx + 1);
       render();
     }
-  };
-  app.appendChild(crumb);
+  });
+  window.__breadcrumb_listener_attached = true;
 }
 
 function metaDetails(meta) {
