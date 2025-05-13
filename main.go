@@ -3,6 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"freezer_proto/backend"
+	"gitlab.com/UrsusArcTech/logger"
+	"os"
 )
 
 func main() {
@@ -19,8 +22,15 @@ func main() {
 		handler.ServeHTTP(w, r)
 	}
 
-	http.HandleFunc("/", corsHandler)
+	dsn := os.Getenv("DB_URL")
+	if dsn == "" {
+		logger.LogError("DB_URL not set")
+	}
 
+	freezerinv.Init(dsn)
+	
+	http.HandleFunc("/getfreezerrooms", freezerinv.GetFreezerRooms)
+	http.HandleFunc("/", corsHandler)
 	log.Println("Serving static/ on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
