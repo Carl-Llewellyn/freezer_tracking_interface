@@ -30,6 +30,7 @@ func main() {
 	freezerinv.Init(dsn)
 	
 	http.HandleFunc("/getfreezerrooms", freezerinv.GetFreezerRooms)
+	http.HandleFunc("/getfreezersinrooms", freezerinv.GetFreezersInRoom)
 	http.HandleFunc("/", corsHandler)
 	log.Println("Serving static/ on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

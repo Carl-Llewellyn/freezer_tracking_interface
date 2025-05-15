@@ -1,1 +1,74 @@
 package freezerinv
+
+import (
+        "net/http"
+        "gitlab.com/UrsusArcTech/logger"
+        "context"
+        "encoding/json"
+	"errors"
+	"time"
+)
+
+type FreezerDB struct{
+	Id int `json:"id"`
+	FreezerLocationId int `json:"freezer_location_id"`
+	LastCalibrated *time.Time `json:"last_calibrated"`
+	Name string `json:"name"`
+	Model string `json:"model"`
+	Comments *string `json:"comments"`
+	CurrentHoldingTempC *int`json:"current_holding_temp_c"`
+	ManualProjectsContained string `json:"manual_projects_contained"`
+}
+
+func GetFreezersInRoom(w http.ResponseWriter, r *http.Request){
+	query := "SELECT f.id, freezer_location_id, last_calibrated, name, model, comments, current_holding_temp_c, manual_projects_contained from mgl_freezer_inventory.freezer f join mgl_freezer_inventory.freezer_locations fl on fl.id = $1"
+
+	args := []interface{}{}
+
+	roomId := r.URL.Query().Get("roomid")
+	
+	errRooms := errors.New("No room ID specified for freezer")
+	if roomId == ""{
+		logger.LogError("No room ID specified for freezer")
+		http.Error(w, errRooms.Error(), 500)
+                return
+	}
+	
+	args = append(args, roomId)
+
+        logger.LogMessage(query)
+        rows, err := db.Query(context.Background(), query, args...)
+        if err != nil{ 
+                http.Error(w, err.Error(), 500)
+                return
+	}
+
+	var results []FreezerDB 
+	
+	for rows.Next(){
+		var freezer FreezerDB
+		
+		err := rows.Scan(
+			&freezer.Id,
+			&freezer.FreezerLocationId,
+			&freezer.LastCalibrated,
+			&freezer.Name,
+			&freezer.Model,
+			&freezer.Comments,
+			&freezer.CurrentHoldingTempC,
+			&freezer.ManualProjectsContained,
+		)
+
+		if err != nil {
+                        http.Error(w, err.Error(), 500)
+                        return
+                }
+
+		results = append(results, freezer)
+
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(results)
+
+}

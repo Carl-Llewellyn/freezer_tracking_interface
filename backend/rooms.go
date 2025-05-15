@@ -1,7 +1,7 @@
 package freezerinv
 
 import (
-	"gitlab.com/mgl-database/mgl-go"
+//	"gitlab.com/mgl-database/mgl-go"
 	"net/http"
 	"strconv"
 	"gitlab.com/UrsusArcTech/logger"
@@ -16,7 +16,6 @@ type FreezerRoom struct{
 }
 
 func GetFreezerRooms(w http.ResponseWriter, r *http.Request){
-	mglgo.Help()
 	query := "SELECT lab, floor, id FROM mgl_freezer_inventory.freezer_locations"
 	args := []interface{}{}
 	where := ""
