@@ -147,20 +147,12 @@ func CheckEdnaAlreadyInABox(w http.ResponseWriter, r *http.Request) {
 
 // InsertBox handles HTTP POST requests to create a new box
 func InsertEdnaLink(w http.ResponseWriter, r *http.Request) {
-
-	//if there are dupes we need a fishingset or aq
-	//fishingset := r.URL.Query().Get("fishingset")
-	//aq := r.URL.Query().Get("aq")
-
-	shelf := r.URL.Query().Get("shelf")
-
-	//ednaId := r.URL.Query().Get("ednaid")//optional if you want to just insert an id
 	enteredName := r.URL.Query().Get("enteredname")
 	boxId := r.URL.Query().Get("boxid")
 
-	if enteredName == "" || boxId == "" || shelf == "" {
-		logger.LogError("Missing required fields: shelf, enteredname, and boxid")
-		http.Error(w, "Missing required fields: shelf, enteredname, and boxid", http.StatusBadRequest)
+	if enteredName == "" || boxId == "" {
+		logger.LogError("Missing required fields: enteredname, and boxid")
+		http.Error(w, "Missing required fields: enteredname, and boxid", http.StatusBadRequest)
 		return
 	}
 
@@ -169,11 +161,11 @@ func InsertEdnaLink(w http.ResponseWriter, r *http.Request) {
 	query := ""
 	var args []interface{}
 	if ednaDbId != -1 {
-		query = "INSERT INTO mgl_freezer_inventory.mgl_edna_box_link(edna_id, box_id, shelf, entered_name) VALUES ($1, $2, $3, $4)"
-		args = []interface{}{ednaDbId, boxId, shelf, enteredName}
+		query = "INSERT INTO mgl_freezer_inventory.mgl_edna_box_link(edna_id, box_id, entered_name) VALUES ($1, $2, $3"
+		args = []interface{}{ednaDbId, boxId, enteredName}
 	} else {
-		query = "INSERT INTO mgl_freezer_inventory.mgl_edna_box_link(box_id, shelf, entered_name) VALUES ($1, $2, $3)"
-		args = []interface{}{boxId, shelf, enteredName}
+		query = "INSERT INTO mgl_freezer_inventory.mgl_edna_box_link(box_id, entered_name) VALUES ($1, $2)"
+		args = []interface{}{boxId, enteredName}
 	}
 
 	//logger.LogMessage(query)
@@ -199,16 +191,15 @@ func UpdateEdnaLink(w http.ResponseWriter, r *http.Request) {
 	freezerId := r.URL.Query().Get("freezerid")
 	name := r.URL.Query().Get("name")
 	boxId := r.URL.Query().Get("boxid")
-	shelf := r.URL.Query().Get("shelf")
 
-	if freezerId == "" || name == "" || boxId == "" || shelf == "" {
-		logger.LogError("Missing required fields: name, freezerid, shelf, and boxid")
-		http.Error(w, "Missing required fields: name, freezerid, shelf, and boxid", http.StatusBadRequest)
+	if freezerId == "" || name == "" || boxId == "" {
+		logger.LogError("Missing required fields: name, freezerid, and boxid")
+		http.Error(w, "Missing required fields: name, freezerid, and boxid", http.StatusBadRequest)
 		return
 	}
 
-	query := "UPDATE mgl_freezer_inventory.boxes SET freezerid = $1, set name = $2, set shelf = $3 WHERE id = $4"
-	args := []interface{}{freezerId, name, shelf, boxId}
+	query := "UPDATE mgl_freezer_inventory.boxes SET freezerid = $1, set name = $2 WHERE id = $3"
+	args := []interface{}{freezerId, name, boxId}
 
 	result, err := db.Exec(context.Background(), query, args...)
 	if err != nil {
