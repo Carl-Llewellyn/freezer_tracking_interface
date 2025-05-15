@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"gitlab.com/UrsusArcTech/logger"
+	"gitlab.com/mgl-database/mgl-go/flags"
 )
 
 func main() {
@@ -23,6 +24,8 @@ func main() {
 		handler.ServeHTTP(w, r)
 	}
 
+	flags.CreateFlag("-geturl", "http://dfo-db:8282/", "Set API url and port.")
+
 	dsn := os.Getenv("DB_URL")
 	if dsn == "" {
 		logger.LogError("DB_URL not set")
@@ -35,6 +38,19 @@ func main() {
 	http.HandleFunc("/getboxesbyfreezer", freezerinv.GetBoxesByFreezer)
 	http.HandleFunc("/insertbox", freezerinv.InsertBox)
 	http.HandleFunc("/updatebox", freezerinv.UpdateBox)
+
+	//eDNA
+	http.HandleFunc("/ednalinkbybox", freezerinv.EdnaLinkByBox)
+	http.HandleFunc("/insertednalink", freezerinv.InsertEdnaLink)
+	http.HandleFunc("/updateednalink", freezerinv.UpdateEdnaLink)
+	http.HandleFunc("/checkednaalreadyinbox", freezerinv.CheckEdnaAlreadyInABox)
+
+	//fish
+	http.HandleFunc("/fishlinkbybox", freezerinv.FishLinkByBox)
+	http.HandleFunc("/insertfishlink", freezerinv.InsertfishLink)
+	http.HandleFunc("/updatefishlink", freezerinv.UpdateFishLink)
+	http.HandleFunc("/checkfishalreadyinbox", freezerinv.CheckFishAlreadyInABox)
+
 	http.HandleFunc("/", corsHandler)
 	log.Println("Serving static/ on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

@@ -68,16 +68,15 @@ func InsertBox(w http.ResponseWriter, r *http.Request) {
 
 	freezerId := r.URL.Query().Get("freezerid")
 	name := r.URL.Query().Get("name")
-	shelf := r.URL.Query().Get("shelf")
 
-	if freezerId == "" || name == "" || shelf == "" {
-		logger.LogError("Missing required fields: name, shelf, and freezerid")
-		http.Error(w, "Missing required fields: name, shelf, and freezerid", http.StatusBadRequest)
+	if freezerId == "" || name == "" {
+		logger.LogError("Missing required fields: name, and freezerid")
+		http.Error(w, "Missing required fields: name, and freezerid", http.StatusBadRequest)
 		return
 	}
 
-	query := "INSERT INTO mgl_freezer_inventory.boxes (name, freezer_id, shelf) VALUES ($1, $2, $3)"
-	args := []interface{}{name, freezerId, shelf}
+	query := "INSERT INTO mgl_freezer_inventory.boxes (name, freezer_id) VALUES ($1, $2, $3)"
+	args := []interface{}{name, freezerId}
 
 	_, err := db.Exec(context.Background(), query, args...)
 	if err != nil {
@@ -95,16 +94,15 @@ func UpdateBox(w http.ResponseWriter, r *http.Request) {
 	freezerId := r.URL.Query().Get("freezerid")
 	name := r.URL.Query().Get("name")
 	boxId := r.URL.Query().Get("boxid")
-	shelf := r.URL.Query().Get("shelf")
 
-	if freezerId == "" || name == "" || boxId == "" || shelf == "" {
-		logger.LogError("Missing required fields: name, freezerid, shelf, and boxid")
-		http.Error(w, "Missing required fields: name, freezerid, shelf, and boxid", http.StatusBadRequest)
+	if freezerId == "" || name == "" || boxId == "" {
+		logger.LogError("Missing required fields: name, freezerid, and boxid")
+		http.Error(w, "Missing required fields: name, freezerid, and boxid", http.StatusBadRequest)
 		return
 	}
 
-	query := "UPDATE mgl_freezer_inventory.boxes SET freezerid = $1, set name = $2, set shelf = $3 WHERE id = $4"
-	args := []interface{}{freezerId, name, shelf, boxId}
+	query := "UPDATE mgl_freezer_inventory.boxes SET freezerid = $1, set name = $2 WHERE id = $4"
+	args := []interface{}{freezerId, name, boxId}
 
 	result, err := db.Exec(context.Background(), query, args...)
 	if err != nil {
