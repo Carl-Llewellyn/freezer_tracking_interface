@@ -21,7 +21,8 @@ type FreezerDB struct{
 }
 
 func GetFreezersInRoom(w http.ResponseWriter, r *http.Request){
-	query := "SELECT f.id, freezer_location_id, last_calibrated, name, model, comments, current_holding_temp_c, manual_projects_contained from mgl_freezer_inventory.freezer f join mgl_freezer_inventory.freezer_locations fl on fl.id = $1"
+	//there shouldn't be a join here but being lazy
+	query := "SELECT f.id, freezer_location_id, last_calibrated, name, model, comments, current_holding_temp_c, manual_projects_contained from mgl_freezer_inventory.freezer f join mgl_freezer_inventory.freezer_locations fl on fl.id = f.freezer_location_id WHERE fl.id = $1"
 
 	args := []interface{}{}
 

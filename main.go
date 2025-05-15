@@ -1,11 +1,12 @@
 package main
 
 import (
+	freezerinv "freezer_proto/backend"
 	"log"
 	"net/http"
-	"freezer_proto/backend"
-	"gitlab.com/UrsusArcTech/logger"
 	"os"
+
+	"gitlab.com/UrsusArcTech/logger"
 )
 
 func main() {
@@ -28,9 +29,12 @@ func main() {
 	}
 
 	freezerinv.Init(dsn)
-	
+
 	http.HandleFunc("/getfreezerrooms", freezerinv.GetFreezerRooms)
 	http.HandleFunc("/getfreezersinrooms", freezerinv.GetFreezersInRoom)
+	http.HandleFunc("/getboxesbyfreezer", freezerinv.GetBoxesByFreezer)
+	http.HandleFunc("/insertbox", freezerinv.InsertBox)
+	http.HandleFunc("/updatebox", freezerinv.UpdateBox)
 	http.HandleFunc("/", corsHandler)
 	log.Println("Serving static/ on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
