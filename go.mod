@@ -4,6 +4,7 @@ go 1.24.3
 
 require (
 	github.com/jackc/pgx/v5 v5.7.4
+	github.com/joho/godotenv v1.5.1
 	gitlab.com/UrsusArcTech/logger v1.0.0
 	gitlab.com/mgl-database/mgl-go v0.1.4
 )

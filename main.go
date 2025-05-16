@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gitlab.com/UrsusArcTech/logger"
 	"gitlab.com/mgl-database/mgl-go/flags"
 )
@@ -26,6 +27,7 @@ func main() {
 
 	flags.CreateFlag("-geturl", "http://dfo-db:8282/", "Set API url and port.")
 
+	_ = godotenv.Load() // Loads .env file into environment variables
 	dsn := os.Getenv("DB_URL")
 	if dsn == "" {
 		logger.LogError("DB_URL not set")
