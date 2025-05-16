@@ -129,7 +129,7 @@ func InsertBox(w http.ResponseWriter, r *http.Request) {
 	_, err := db.Exec(context.Background(), query, args...)
 	if err != nil {
 		logger.LogError("Database error: " + err.Error())
-		http.Error(w, "Database error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

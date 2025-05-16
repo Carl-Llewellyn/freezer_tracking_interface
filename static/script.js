@@ -105,11 +105,53 @@ async function loadBoxes(freezerId) {
       boxEl.draggable = true;
       boxEl.ondragstart = e => e.dataTransfer.setData('text', b.id);
       boxEl.onclick = () => loadSamples(b.id);
+
+      // Edit button
+      const editBtn = document.createElement('button');
+      editBtn.textContent = '✎';
+      editBtn.title = 'Edit box name';
+      editBtn.onclick = (e) => {
+        e.stopPropagation();
+        editBox(b);
+      };
+      boxEl.append(editBtn);
+
+      // Delete button
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑';
+      delBtn.title = 'Delete box';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteBox(b);
+      };
+      boxEl.append(delBtn);
+
       shelf.append(boxEl);
     });
 
     container.append(shelf);
   }
+}
+
+function getOwnText(el) {
+  return Array.from(el.childNodes)
+    .filter(node => node.nodeType === Node.TEXT_NODE)
+    .map(node => node.textContent.trim())
+    .join(' ')
+    .trim();
+}
+
+function editBox(box) {
+  const newName = prompt('New box name:', box.name);
+  if (newName && newName !== box.name) {
+    fetch(`/updatebox?boxid=${box.id}&freezerid=${currentFreezer}&shelf=${box.shelf}&name=${encodeURIComponent(newName)}`)
+      .then(() => loadBoxes(currentFreezer));
+  }
+}
+
+function deleteBox(box) {
+  if (!confirm(`Delete box "${box.name}"?`)) return;
+  fetch(`/deletebox?boxid=${box.id}`).then(() => loadBoxes(currentFreezer));
 }
 
 // Handle Box Drop
@@ -119,7 +161,7 @@ async function handleDrop(e, freezerId) {
   const newShelf = e.currentTarget.dataset.shelf;
   const boxEl = document.getElementById(`box-${boxId}`);
   e.currentTarget.append(boxEl);
-  const name = encodeURIComponent(boxEl.textContent);
+  const name = encodeURIComponent(getOwnText(boxEl));
   await fetch(`/updatebox?boxid=${boxId}&freezerid=${freezerId}&shelf=${newShelf}&name=${name}`);
 }
 
@@ -130,7 +172,14 @@ document.getElementById('addBoxSubmit').onclick = async () => {
   const name = document.getElementById('newBoxName').value.trim();
   const shelf = document.getElementById('newBoxShelf').value;
   if (!name) return;
-  await fetch(`/insertbox?freezerid=${currentFreezer}&shelf=${shelf}&name=${encodeURIComponent(name)}`);
+  const response = await fetch(`/insertbox?freezerid=${currentFreezer}&shelf=${shelf}&name=${encodeURIComponent(name)}`);
+  
+  if (!response.ok) {
+    const errText = await response.text();
+    alert(errText);
+    return;
+  }
+  
   addBoxDlg.close();
   loadBoxes(currentFreezer);
 };
