@@ -48,7 +48,7 @@ async function loadRooms() {
   rooms.forEach(r => {
     const li = document.createElement('li');
     const btn = document.createElement('button');
-    btn.textContent = `${r.lab} – Floor ${r.floor}`;
+    btn.textContent = `${r.lab} – ${r.floor}`;
     btn.onclick = () => loadFreezers(r.id);
     li.append(btn);
     ul.append(li);
