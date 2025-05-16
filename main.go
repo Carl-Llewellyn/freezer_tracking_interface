@@ -39,18 +39,21 @@ func main() {
 	http.HandleFunc("/insertbox", freezerinv.InsertBox)
 	http.HandleFunc("/updatebox", freezerinv.UpdateBox)
 	http.HandleFunc("/deletebox", freezerinv.DeleteBox)
+	http.HandleFunc("/getallboxes", freezerinv.GetAllBoxes)
 
 	//eDNA
 	http.HandleFunc("/ednalinkbybox", freezerinv.EdnaLinkByBox)
 	http.HandleFunc("/insertednalink", freezerinv.InsertEdnaLink)
 	http.HandleFunc("/updateednalink", freezerinv.UpdateEdnaLink)
 	http.HandleFunc("/checkednaalreadyinbox", freezerinv.CheckEdnaAlreadyInABox)
+	http.HandleFunc("/deleteednalink", freezerinv.DeleteEdnaLink)
 
 	//fish
 	http.HandleFunc("/fishlinkbybox", freezerinv.FishLinkByBox)
 	http.HandleFunc("/insertfishlink", freezerinv.InsertfishLink)
 	http.HandleFunc("/updatefishlink", freezerinv.UpdateFishLink)
 	http.HandleFunc("/checkfishalreadyinbox", freezerinv.CheckFishAlreadyInABox)
+	http.HandleFunc("/deletefishlink", freezerinv.DeleteFishLink)
 
 	http.HandleFunc("/", corsHandler)
 	log.Println("Serving static/ on http://localhost:8080")

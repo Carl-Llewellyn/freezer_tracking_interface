@@ -1,0 +1,60 @@
+:root {
+  --bg: #0D1117;
+  --surface: #161B22;
+  --muted: #30363D;
+  --text: #C9D1D9;
+  --border: #30363D;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+}
+.view { padding: 1rem; }
+.hidden { display: none; }
+button, select, input {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  margin: 0.25rem;
+  border-radius: 4px;
+}
+button:hover { background: var(--muted); }
+ul { list-style: none; padding: 0; }
+li button { margin-left: 0.5rem; }
+.freezer-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.freezer-card:hover { background: var(--muted); }
+.shelves-container {
+  display: flex;
+  gap: 1rem;
+}
+.shelf {
+  flex: 1;
+  min-height: 150px;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+.box {
+  background: var(--muted);
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  border-radius: 4px;
+  cursor: grab;
+}
+.samples-container { display: flex; gap: 2rem; }
+.samples-container div { flex: 1; }
+dialog { background: var(--surface); border: 1px solid var(--border); padding: 1rem; border-radius: 6px; }
+[role="alert"] { margin: 0.5rem 0; color: #f9d90d; }

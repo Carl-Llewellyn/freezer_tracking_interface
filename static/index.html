@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Freezer Inventory</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <dialog id="loginDialog" aria-labelledby="loginTitle" aria-modal="true">
+    <h2 id="loginTitle">Enter Username</h2>
+    <input id="usernameInput" type="text" placeholder="Username">
+    <button id="loginSubmit">OK</button>
+  </dialog>
+
+  <main id="app">
+    <section id="roomView" class="view">
+      <h1>Rooms</h1>
+      <ul id="roomList"></ul>
+    </section>
+
+    <section id="freezerView" class="view hidden">
+      <button id="backToRooms">← Back to Rooms</button>
+      <h1>Freezers</h1>
+      <div id="freezerList"></div>
+    </section>
+
+    <section id="boxView" class="view hidden">
+      <button id="backToFreezers">← Back to Freezers</button>
+      <h1>Boxes</h1>
+      <button id="addBoxBtn">Add Box</button>
+      <div class="shelves-container" id="shelvesContainer"></div>
+    </section>
+
+    <section id="sampleView" class="view hidden">
+      <button id="backToBoxes">← Back to Boxes</button>
+      <h1>Samples in Box</h1>
+      <form id="addSampleForm">
+        <label>eDNA ID: <input id="ednaInput" placeholder="Enter eDNA ID"></label>
+        <label>Fish ID: <input id="fishInput" placeholder="Enter Fish ID"></label>
+        <button type="submit">Add Sample</button>
+      </form>
+      <div id="message" role="alert"></div>
+      <div class="samples-container">
+        <div>
+          <h2>eDNA</h2>
+          <ul id="ednaList"></ul>
+        </div>
+        <div>
+          <h2>Fish</h2>
+          <ul id="fishList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="addBoxDialog" aria-labelledby="addBoxTitle" aria-modal="true">
+    <h3 id="addBoxTitle">Add New Box</h3>
+    <form method="dialog">
+      <label>Name: <input id="newBoxName" required></label>
+      <label>Shelf:
+        <select id="newBoxShelf">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+      <menu>
+        <button id="addBoxSubmit">Add</button>
+        <button id="addBoxCancel" type="button">Cancel</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>

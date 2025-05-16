@@ -100,7 +100,7 @@ func CheckFishAlreadyInABox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "SELECT ebl.shelf, ebl.entered_name as fish_name, b.name as box_name, f.name as freezer_name, f.model as freezer_model, fl.lab, fl.floor FROM mgl_freezer_inventory.mgl_fish_box_link ebl join mgl_freezer_inventory.boxes b on ebl.box_id = b.id join mgl_freezer_inventory.freezer f on b.freezer_id = f.id join mgl_freezer_inventory.freezer_locations fl on fl.id = f.freezer_location_id WHERE entered_name = $1"
+	query := "SELECT shelf, ebl.entered_name as fish_name, b.name as box_name, f.name as freezer_name, f.model as freezer_model, fl.lab, fl.floor FROM mgl_freezer_inventory.mgl_fish_box_link ebl join mgl_freezer_inventory.boxes b on ebl.box_id = b.id join mgl_freezer_inventory.freezer f on b.freezer_id = f.id join mgl_freezer_inventory.freezer_locations fl on fl.id = f.freezer_location_id WHERE entered_name = $1"
 	args := []interface{}{fishName}
 
 	rows, err := db.Query(context.Background(), query, args...)
@@ -161,10 +161,10 @@ func InsertfishLink(w http.ResponseWriter, r *http.Request) {
 	query := ""
 	var args []interface{}
 	if fishDbId != -1 {
-		query = "INSERT INTO mgl_freezer_inventory.mgl_fish_box_link(fish_id, box_id, entered_name) VALUES ($1, $2, $3, $4)"
+		query = "INSERT INTO mgl_freezer_inventory.mgl_fish_box_link(fish_id, box_id, entered_name) VALUES ($1, $2, $3)"
 		args = []interface{}{fishDbId, boxId, enteredName}
 	} else {
-		query = "INSERT INTO mgl_freezer_inventory.mgl_fish_box_link(box_id, entered_name) VALUES ($1, $2, $3)"
+		query = "INSERT INTO mgl_freezer_inventory.mgl_fish_box_link(box_id, entered_name) VALUES ($1, $2)"
 		args = []interface{}{boxId, enteredName}
 	}
 
@@ -188,18 +188,26 @@ func InsertfishLink(w http.ResponseWriter, r *http.Request) {
 
 // UpdateBox handles HTTP PUT requests to update a box's FreezerID
 func UpdateFishLink(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get("name")
 	boxId := r.URL.Query().Get("boxid")
+	enteredname := r.URL.Query().Get("enteredname")
+	newenteredname := r.URL.Query().Get("newenteredname")
 
-	if name == "" || boxId == "" {
-		logger.LogError("Missing required fields: name, and boxid")
-		http.Error(w, "Missing required fields: name, and boxid", http.StatusBadRequest)
+	if boxId == "" || enteredname == "" {
+		logger.LogError("Missing required fields: enteredname, and boxid")
+		http.Error(w, "Missing required fields: enteredfishname, and boxid", http.StatusBadRequest)
 		return
 	}
 
-	query := "UPDATE mgl_freezer_inventory.boxes SET set name = $1 WHERE id = $2"
-	args := []interface{}{name, boxId}
+	query := ""
+	var args []interface{}
 
+	if newenteredname != "" {
+		query = "UPDATE mgl_freezer_inventory.mgl_fish_box_link set entered_name = $1, box_id = $2 WHERE entered_name = $3"
+		args = []interface{}{newenteredname, boxId, enteredname}
+	} else {
+		query = "UPDATE mgl_freezer_inventory.mgl_fish_box_link set box_id = $1 WHERE entered_name = $2"
+		args = []interface{}{boxId, enteredname}
+	}
 	result, err := db.Exec(context.Background(), query, args...)
 	if err != nil {
 		logger.LogError("Database error: " + err.Error())
@@ -209,8 +217,32 @@ func UpdateFishLink(w http.ResponseWriter, r *http.Request) {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		logger.LogError("No rows affected - box not found")
-		http.Error(w, "Box not found", http.StatusNotFound)
+		logger.LogError("No rows affected - fish link not found")
+		http.Error(w, "Fish link not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteFishLink(w http.ResponseWriter, r *http.Request) {
+	enteredname := r.URL.Query().Get("enteredname")
+
+	if enteredname == "" {
+		logger.LogError("Missing required fields: enteredname")
+		http.Error(w, "Missing required fields: enteredname", http.StatusBadRequest)
+		return
+	}
+
+	query := "DELETE FROM mgl_freezer_inventory.mgl_fish_box_link WHERE entered_name = $1"
+	args := []interface{}{enteredname}
+
+	//logger.LogMessage(query)
+
+	_, err := db.Exec(context.Background(), query, args...)
+	if err != nil {
+		logger.LogError("Database error: " + err.Error())
+		http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

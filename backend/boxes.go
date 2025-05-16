@@ -16,6 +16,52 @@ type Box struct {
 	Shelf     int    `json:"shelf"`
 }
 
+type BoxesInFreezers struct {
+	Lab         string `json:"lab"`
+	Floor       string `json:"floor"`
+	FreezerName string `json:"freezer_name"`
+	FreezerId   int    `json:"freezer_id"`
+	BoxId       int    `json:"box_id"`
+	Shelf       int    `json:"shelf"`
+}
+
+func GetAllBoxes(w http.ResponseWriter, r *http.Request) {
+	query := "select lab, floor, f.name as freezer_name, freezer_id, b.id as box_id, shelf from mgl_freezer_inventory.boxes b join mgl_freezer_inventory.freezer f on b.freezer_id = f.id join mgl_freezer_inventory.freezer_locations fl on fl.id = f.freezer_location_id"
+
+	logger.LogMessage(query)
+	rows, err := db.Query(context.Background(), query)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	var results []BoxesInFreezers
+
+	for rows.Next() {
+		var box BoxesInFreezers
+
+		err := rows.Scan(
+			&box.Lab,
+			&box.Floor,
+			&box.FreezerName,
+			&box.FreezerId,
+			&box.BoxId,
+			&box.Shelf,
+		)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		results = append(results, box)
+
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(results)
+}
+
 func GetBoxesByFreezer(w http.ResponseWriter, r *http.Request) {
 	query := "select id, name, freezer_id, shelf from mgl_freezer_inventory.boxes where freezer_id = $1"
 	args := []interface{}{}
@@ -129,7 +175,7 @@ func UpdateBox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "UPDATE mgl_freezer_inventory.boxes SET freezerid = $1, set name = $2, set shelf = $3 WHERE id = $4"
+	query := "UPDATE mgl_freezer_inventory.boxes SET freezer_id = $1, name = $2, shelf = $3 WHERE id = $4"
 	args := []interface{}{freezerId, name, shelf, boxId}
 
 	result, err := db.Exec(context.Background(), query, args...)
