@@ -21,6 +21,46 @@ type FreezerDB struct {
 	ManualProjectsContained string     `json:"manual_projects_contained"`
 }
 
+type FreezerExtr struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+func GetAllFreezers(w http.ResponseWriter, r *http.Request) {
+
+	query := "select id, name from mgl_freezer_inventory.freezer"
+
+	logger.LogMessage(query)
+	rows, err := db.Query(context.Background(), query)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	var results []FreezerExtr
+
+	for rows.Next() {
+		var freezer FreezerExtr
+
+		err := rows.Scan(
+			&freezer.Id,
+			&freezer.Name,
+		)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		results = append(results, freezer)
+
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(results)
+
+}
+
 func GetFreezersInRoom(w http.ResponseWriter, r *http.Request) {
 	//there shouldn't be a join here but being lazy
 	query := "SELECT f.id, freezer_location_id, last_calibrated, name, model, comments, current_holding_temp_c, manual_projects_contained from mgl_freezer_inventory.freezer f join mgl_freezer_inventory.freezer_locations fl on fl.id = f.freezer_location_id WHERE fl.id = $1"

@@ -40,6 +40,8 @@ func main() {
 	http.HandleFunc("/updatebox", freezerinv.UpdateBox)
 	http.HandleFunc("/deletebox", freezerinv.DeleteBox)
 	http.HandleFunc("/getallboxes", freezerinv.GetAllBoxes)
+	http.HandleFunc("/moveallboxestoshelf", freezerinv.MoveAllBoxesToShelf)
+	http.HandleFunc("/getallfreezers", freezerinv.GetAllFreezers)
 
 	//eDNA
 	http.HandleFunc("/ednalinkbybox", freezerinv.EdnaLinkByBox)

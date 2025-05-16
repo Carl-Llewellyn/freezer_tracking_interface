@@ -26,7 +26,7 @@ async function safeFetchJson(url) {
 
 // Login
 const loginDlg = document.getElementById('loginDialog');
-loginDlg.showModal();
+//loginDlg.showModal();
 document.getElementById('loginSubmit').addEventListener('click', () => {
   const user = document.getElementById('usernameInput').value.trim();
   if (user) {
@@ -35,6 +35,8 @@ document.getElementById('loginSubmit').addEventListener('click', () => {
     loadRooms();
   }
 });
+
+    loadRooms();
 
 // Load Rooms
 async function loadRooms() {
@@ -78,6 +80,8 @@ async function loadFreezers(roomId) {
   });
 }
 
+
+
 // Load Boxes with Drag-and-Drop
 async function loadBoxes(freezerId) {
   currentFreezer = freezerId;
@@ -96,6 +100,39 @@ async function loadBoxes(freezerId) {
     shelf.dataset.shelf = i;
     shelf.ondragover = e => e.preventDefault();
     shelf.ondrop = e => handleDrop(e, freezerId);
+
+
+    const moveAllShelfBoxesBtn = document.createElement('button');
+    moveAllShelfBoxesBtn.textContent = 'Move all boxes';
+    moveAllShelfBoxesBtn.title = 'Move all boxes';
+    moveAllShelfBoxesBtn.onclick = async (e) => {
+      e.stopPropagation();
+      // 1) Load all freezers
+      const freezers = await safeFetchJson('/getallfreezers') || [];
+      const choiceList = freezers.map(f => `${f.id}: ${f.name}`).join('\n');
+      const choice = prompt(`Select target freezer:\n${choiceList}`, String(currentFreezer));
+      if (!choice) return;
+      const newFreezer = choice.split(':')[0].trim();
+      // 2) Ask for shelf number
+      const newShelf = prompt('Enter target shelf number (1–5):', String(i));
+      if (!newShelf) return;
+      // 3) Call API
+      const params = new URLSearchParams({
+        oldshelf: String(i),
+        newshelf: String(newShelf),
+        oldfreezer: String(currentFreezer),
+        newfreezer: newFreezer,
+      });
+      const res = await fetch(`/moveallboxestoshelf?${params.toString()}`);
+      if (!res.ok) {
+        alert(await res.text());
+        return;
+      }
+      // 4) Refresh view
+      loadBoxes(currentFreezer);
+    };
+    shelf.append(moveAllShelfBoxesBtn);
+
 
     boxes.filter(b => String(b.shelf) === String(i)).forEach(b => {
       const boxEl = document.createElement('div');

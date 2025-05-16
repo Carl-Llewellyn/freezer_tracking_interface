@@ -25,6 +25,26 @@ type BoxesInFreezers struct {
 	Shelf       int    `json:"shelf"`
 }
 
+func MoveAllBoxesToShelf(w http.ResponseWriter, r *http.Request) {
+	oldShelf := r.URL.Query().Get("oldshelf")
+	newShelf := r.URL.Query().Get("newshelf")
+	oldFreezer := r.URL.Query().Get("oldfreezer")
+	newFreezer := r.URL.Query().Get("newfreezer")
+
+	query := "UPDATE mgl_freezer_inventory.boxes SET shelf = $1, freezer_id = $2 WHERE shelf = $3 and freezer_id = $4"
+	args := []interface{}{newShelf, newFreezer, oldShelf, oldFreezer}
+
+	_, err := db.Exec(context.Background(), query, args...)
+	if err != nil {
+		logger.LogError("Database error: " + err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Request was successful"))
+}
+
 func GetAllBoxes(w http.ResponseWriter, r *http.Request) {
 	query := "select lab, floor, f.name as freezer_name, freezer_id, b.id as box_id, shelf from mgl_freezer_inventory.boxes b join mgl_freezer_inventory.freezer f on b.freezer_id = f.id join mgl_freezer_inventory.freezer_locations fl on fl.id = f.freezer_location_id"
 
